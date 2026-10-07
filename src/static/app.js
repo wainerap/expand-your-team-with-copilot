@@ -1,3 +1,5 @@
+import { createShareControls } from "./activity-sharing.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   // DOM elements
   const activitiesList = document.getElementById("activities-list");
@@ -40,6 +42,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let searchQuery = "";
   let currentDay = "";
   let currentTimeRange = "";
+  const sharedActivity = new URLSearchParams(window.location.search).get("activity");
+  let sharedActivityFocused = false;
 
   // Authentication state
   let currentUser = null;
@@ -404,6 +408,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Apply search and filter, and handle weekend filter in client
       displayFilteredActivities();
+      if (sharedActivity && !sharedActivityFocused) {
+        const sharedCard = Array.from(activitiesList.children).find(
+          (card) => card.dataset.activity === sharedActivity
+        );
+        if (sharedCard) {
+          sharedCard.focus({ preventScroll: true });
+          sharedCard.scrollIntoView({ block: "center" });
+          sharedActivityFocused = true;
+        }
+      }
     } catch (error) {
       activitiesList.innerHTML =
         "<p>Failed to load activities. Please try again later.</p>";
@@ -478,6 +492,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
     activityCard.className = "activity-card";
+    activityCard.dataset.activity = name;
+    if (name === sharedActivity) {
+      activityCard.classList.add("shared-activity");
+      activityCard.tabIndex = -1;
+    }
 
     // Calculate spots and capacity
     const totalSpots = details.max_participants;
@@ -589,6 +608,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    activityCard.appendChild(createShareControls(name));
     activitiesList.appendChild(activityCard);
   }
 
