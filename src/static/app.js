@@ -42,7 +42,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let searchQuery = "";
   let currentDay = "";
   let currentTimeRange = "";
-  let sharedActivity = new URLSearchParams(window.location.search).get("activity");
+  const sharedActivity = new URLSearchParams(window.location.search).get("activity");
+  let sharedActivityFocused = false;
 
   // Authentication state
   let currentUser = null;
@@ -407,16 +408,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Apply search and filter, and handle weekend filter in client
       displayFilteredActivities();
-      if (sharedActivity) {
+      if (sharedActivity && !sharedActivityFocused) {
         const sharedCard = Array.from(activitiesList.children).find(
           (card) => card.dataset.activity === sharedActivity
         );
         if (sharedCard) {
-          sharedCard.classList.add("shared-activity");
-          sharedCard.tabIndex = -1;
           sharedCard.focus({ preventScroll: true });
           sharedCard.scrollIntoView({ block: "center" });
-          sharedActivity = null;
+          sharedActivityFocused = true;
         }
       }
     } catch (error) {
@@ -494,6 +493,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const activityCard = document.createElement("div");
     activityCard.className = "activity-card";
     activityCard.dataset.activity = name;
+    if (name === sharedActivity) {
+      activityCard.classList.add("shared-activity");
+      activityCard.tabIndex = -1;
+    }
 
     // Calculate spots and capacity
     const totalSpots = details.max_participants;
