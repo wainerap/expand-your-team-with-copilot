@@ -1,4 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const themeToggle = document.getElementById("theme-toggle");
+  const savedTheme = localStorage.getItem("theme");
+
+  function setTheme(isDark) {
+    document.documentElement.classList.toggle("dark-mode", isDark);
+    themeToggle.textContent = isDark ? "☀️ Light mode" : "🌙 Dark mode";
+    themeToggle.setAttribute("aria-pressed", String(isDark));
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }
+
+  setTheme(savedTheme === "dark");
+  themeToggle.addEventListener("click", () => {
+    setTheme(!document.documentElement.classList.contains("dark-mode"));
+  });
+
   // DOM elements
   const activitiesList = document.getElementById("activities-list");
   const messageDiv = document.getElementById("message");
